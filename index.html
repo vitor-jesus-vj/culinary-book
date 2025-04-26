@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Livro de Receitas</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.22.9/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Dados iniciais de receitas
+    const initialRecipes = [
+      {
+        id: 1,
+        title: { en: "Borscht", ru: "Борщ", pt: "Borscht" },
+        category: "Soup",
+        cuisine: "Russian",
+        ingredients: [
+          { en: "500g beetroot", ru: "500 г свёклы", pt: "500g de beterraba" },
+          { en: "200g cabbage", ru: "200 г капусты", pt: "200g de repolho" },
+          { en: "2 potatoes", ru: "2 картофелины", pt: "2 batatas" },
+          { en: "1 carrot", ru: "1 морковь", pt: "1 cenoura" },
+          { en: "1 onion", ru: "1 луковица", pt: "1 cebola" },
+          { en: "2 tbsp tomato paste", ru: "2 ст.л. томатной пасты", pt: "2 colheres de sopa de extrato de tomate" },
+          { en: "1.5L beef broth", ru: "1.5 л говяжьего бульона", pt: "1,5L de caldo de carne" },
+          { en: "Salt, pepper, dill to taste", ru: "Соль, перец, укроп по вкусу", pt: "Sal, pimenta, endro a gosto" }
+        ],
+        instructions: {
+          en: "1. Boil beets until soft, grate them. 2. Sauté onions and carrots. 3. Add tomato paste, cabbage, potatoes, and broth. 4. Simmer for 30 minutes. 5. Add beets, season, and serve with dill.",
+          ru: "1. Отварите свёклу до мягкости, натрите. 2. Обжарьте лук и морковь. 3. Добавьте томатную пасту, капусту, картофель и бульон. 4. Варите 30 минут. 5. Добавьте свёклу, приправьте и подавайте с укропом.",
+          pt: "1. Cozinhe as beterrabas até ficarem macias, rale-as. 2. Refogue cebolas e cenouras. 3. Adicione extrato de tomate, repolho, batatas e caldo. 4. Cozinhe por 30 minutos. 5. Adicione as beterrabas, tempere e sirva com endro."
+        },
+        prepTime: "1h",
+        servings: 4
+      },
+      {
+        id: 2,
+        title: { en: "Pelmeni", ru: "Пельмени", pt: "Pelmeni" },
+        category: "Main Course",
+        cuisine: "Russian",
+        ingredients: [
+          { en: "300g flour", ru: "300 г муки", pt: "300g de farinha" },
+          { en: "1 egg", ru: "1 яйцо", pt: "1 ovo" },
+          { en: "100ml water", ru: "100 мл воды", pt: "100ml de água" },
+          { en: "200g ground beef", ru: "200 г говяжьего фарша", pt: "200g de carne moída bovina" },
+          { en: "200g ground pork", ru: "200 г свиного фарша", pt: "200g de carne moída suína" },
+          { en: "1 onion", ru: "1 луковица", pt: "1 cebola" },
+          { en: "Salt, pepper to taste", ru: "Соль, перец по вкусу", pt: "Sal, pimenta a gosto" }
+        ],
+        instructions: {
+          en: "1. Mix flour, egg, and water to make dough. 2. Combine meats, onion, and spices for filling. 3. Roll out dough, cut circles, and fill with meat. 4. Boil for 7-10 minutes. 5. Serve with sour cream.",
+          ru: "1. Смешайте муку, яйцо и воду для теста. 2. Смешайте мясо, лук и специи для начинки. 3. Раскатайте тесто, вырежьте круги, наполните мясом. 4. Варите 7-10 минут. 5. Подавайте со сметаной.",
+          pt: "1. Misture farinha, ovo e água para fazer a massa. 2. Combine as carnes, cebola e temperos para o recheio. 3. Abra a massa, corte círculos e recheie com carne. 4. Cozinhe por 7-10 minutos. 5. Sirva com creme de leite."
+        },
+        prepTime: "1h 30m",
+        servings: 6
+      },
+      {
+        id: 3,
+        title: { en: "Tiramisu", ru: "Тирамису", pt: "Tiramisu" },
+        category: "Dessert",
+        cuisine: "Italian",
+        ingredients: [
+          { en: "250g mascarpone", ru: "250 г маскарпоне", pt: "250g de mascarpone" },
+          { en: "3 eggs", ru: "3 яйца", pt: "3 ovos" },
+          { en: "100g sugar", ru: "100 г сахара", pt: "100g de açúcar" },
+          { en: "200g ladyfingers", ru: "200 г савоярди", pt: "200g de biscoitos champanhe" },
+          { en: "1 cup espresso", ru: "1 чашка эспрессо", pt: "1 xícara de café espresso" },
+          { en: "Cocoa powder", ru: "Какао-порошок", pt: "Cacau em pó" }
+        ],
+        instructions: {
+          en: "1. Beat egg yolks with sugar, add mascarpone. 2. Whip egg whites and fold in. 3. Dip ladyfingers in espresso, layer with cream. 4. Chill for 4 hours. 5. Dust with cocoa.",
+          ru: "1. Взбейте желтки с сахаром, добавьте маскарпоне. 2. Взбейте белки и вмешайте. 3. Обмакните савоярди в эспрессо, выложите слоями с кремом. 4. Охладите 4 часа. 5. Посыпьте какао.",
+          pt: "1. Bata as gemas com açúcar, adicione o mascarpone. 2. Bata as claras em neve e incorpore. 3. Molhe os biscoitos no espresso e faça camadas com o creme. 4. Leve à geladeira por 4 horas. 5. Polvilhe com cacau."
+        },
+        prepTime: "30m",
+        servings: 8
+      }
+    ];
+
+    // Componente principal
+    function App() {
+      const [recipes, setRecipes] = useState(initialRecipes);
+      const [language, setLanguage] = useState('pt');
+      const [search, setSearch] = useState('');
+      const [categoryFilter, setCategoryFilter] = useState('');
+      const [cuisineFilter, setCuisineFilter] = useState('');
+      const [showAddForm, setShowAddForm] = useState(false);
+
+      // Filtrar receitas
+      const filtered KaufRecipes = recipes.filter(recipe => {
+        const title = recipe.title[language].toLowerCase();
+        const matchesSearch = title.includes(search.toLowerCase());
+        const matchesCategory = categoryFilter ? recipe.category === categoryFilter : true;
+        const matchesCuisine = cuisineFilter ? recipe.cuisine === cuisineFilter : true;
+        return matchesSearch && matchesCategory && matchesCuisine;
+      });
+
+      // Adicionar nova receita
+      const addRecipe = (newRecipe) => {
+        setRecipes([...recipes, { ...newRecipe, id: recipes.length + 1 }]);
+        setShowAddForm(false);
+      };
+
+      return (
+        <div className="min-h-screen bg-gray-100 font-sans">
+          <header className="bg-blue-600 text-white p-4">
+            <div className="container mx-auto flex justify-between items-center">
+              <h1 className="text-2xl font-bold">
+                {language === 'en' ? 'Culinary Book' : language === 'ru' ? 'Кулинарная Книга' : 'Livro de Receitas'}
+              </h1>
+              <div>
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="mr-4 bg-blue-800 px-3 py-1 rounded hover:bg-blue-900 text-white"
+                >
+                  <option value="pt">Português</option>
+                  <option value="en">English</option>
+                  <option value="ru">Русский</option>
+                </select>
+                <button
+                  onClick={() => setShowAddForm(true)}
+                  className="bg-green-600 px-3 py-1 rounded hover:bg-green-700"
+                >
+                  {language === 'en' ? 'Add Recipe' : language === 'ru' ? 'Добавить рецепт' : 'Adicionar Receita'}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <main className="container mx-auto p-4">
+            {/* Filtros e Pesquisa */}
+            <div className="mb-6 flex flex-col md:flex-row gap-4">
+              <input
+                type="text"
+                placeholder={language === 'en' ? 'Search recipes...' : language === 'ru' ? 'Поиск рецептов...' : 'Pesquisar receitas...'}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="p-2 border rounded w-full md:w-1/3"
+              />
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="p-2 border rounded"
+              >
+                <option value="">{language === 'en' ? 'All Categories' : language === 'ru' ? 'Все категории' : 'Todas as Categorias'}</option>
+                <option value="Soup">{language === 'en' ? 'Soup' : language === 'ru' ? 'Суп' : 'Sopa'}</option>
+                <option value="Main Course">{language === 'en' ? 'Main Course' : language === 'ru' ? 'Основное блюдо' : 'Prato Principal'}</option>
+                <option value="Dessert">{language === 'en' ? 'Dessert' : language === 'ru' ? 'Десерт' : 'Sobremesa'}</option>
+              </select>
+              <select
+                value={cuisineFilter}
+                onChange={(e) => setCuisineFilter(e.target.value)}
+                className="p-2 border rounded"
+              >
+                <option value="">{language === 'en' ? 'All Cuisines' : language === 'ru' ? 'Все кухни' : 'Todas as Cozinhas'}</option>
+                <option value="Russian">{language === 'en' ? 'Russian' : language === 'ru' ? 'Русская' : 'Russa'}</option>
+                <option value="Italian">{language === 'en' ? 'Italian' : language === 'ru' ? 'Итальянская' : 'Italiana'}</option>
+              </select>
+            </div>
+
+            {/* Formulário de adição de receita */}
+            {showAddForm && (
+              <AddRecipeForm language={language} onAdd={addRecipe} onCancel={() => setShowAddForm(false)} />
+            )}
+
+            {/* Lista de receitas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRecipes.map(recipe => (
+                <RecipeCard key={recipe.id} recipe={recipe} language={language} />
+              ))}
+            </div>
+          </main>
+        </div>
+      );
+    }
+
+    // Componente de cartão de receita
+    function RecipeCard({ recipe, language }) {
+      return (
+        <div className="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition">
+          <h2 className="text-xl font-semibold mb-2">{recipe.title[language]}</h2>
+          <p className="text-gray-600 mb-1">
+            <strong>{language === 'en' ? 'Category' : language === 'ru' ? 'Категория' : 'Categoria'}:</strong> {recipe.category}
+          </p>
+          <p className="text-gray-600 mb-1">
+            <strong>{language === 'en' ? 'Cuisine' : language === 'ru' ? 'Кухня' : 'Cozinha'}:</strong> {recipe.cuisine}
+          </p>
+          <p className="text-gray-600 mb-1">
+            <strong>{language === 'en' ? 'Prep Time' : language === 'ru' ? 'Время подготовки' : 'Tempo de Preparo'}:</strong> {recipe.prepTime}
+          </p>
+          <p className="text-gray-600 mb-1">
+            <strong>{language === 'en' ? 'Servings' : language === 'ru' ? 'Порции' : 'Porções'}:</strong> {recipe.servings}
+          </p>
+          <h3 className="font-semibold mt-2">{language === 'en' ? 'Ingredients' : language === 'ru' ? 'Ингредиенты' : 'Ingredientes'}:</h3>
+          <ul className="list-disc pl-5 mb-2">
+            {recipe.ingredients.map((ingredient, index) => (
+              <li key={index}>{ingredient[language]}</li>
+            ))}
+          </ul>
+          <h3 className="font-semibold">{language === 'en' ? 'Instructions' : language === 'ru' ? 'Инструкции' : 'Instruções'}:</h3>
+          <p>{recipe.instructions[language]}</p>
+        </div>
+      );
+    }
+
+    // Componente de formulário para adicionar receita
+    function AddRecipeForm({ language, onAdd, onCancel }) {
+      const [title, setTitle] = useState({ en: '', ru: '', pt: '' });
+      const [category, setCategory] = useState('');
+      const [cuisine, setCuisine] = useState('');
+      const [ingredients, setIngredients] = useState([{ en: '', ru: '', pt: '' }]);
+      const [instructions, setInstructions] = useState({ en: '', ru: '', pt: '' });
+      const [prepTime, setPrepTime] = useState('');
+      const [servings, setServings] = useState('');
+
+      const handleAddIngredient = () => {
+        setIngredients([...ingredients, { en: '', ru: '', pt: '' }]);
+      };
+
+      const handleIngredientChange = (index, field, value) => {
+        const newIngredients = [...ingredients];
+        newIngredients[index][field] = value;
+        setIngredients(newIngredients);
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const newRecipe = {
+          title,
+          category,
+          cuisine,
+          ingredients,
+          instructions,
+          prepTime,
+          servings: parseInt(servings)
+        };
+        onAdd(newRecipe);
+      };
+
+      return (
+        <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+          <h2 className="text-xl font-bold mb-4">
+            {language === 'en' ? 'Add New Recipe' : language === 'ru' ? 'Добавить новый рецепт' : 'Adicionar Nova Receita'}
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Title (EN)' : language === 'ru' ? 'Название (EN)' : 'Título (EN)'}</label>
+              <input
+                type="text"
+                value={title.en}
+                onChange={(e) => setTitle({ ...title, en: e.target.value })}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Title (RU)' : language === 'ru' ? 'Название (RU)' : 'Título (RU)'}</label>
+              <input
+                type="text"
+                value={title.ru}
+                onChange={(e) => setTitle({ ...title, ru: e.target.value })}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Title (PT)' : language === 'ru' ? 'Название (PT)' : 'Título (PT)'}</label>
+              <input
+                type="text"
+                value={title.pt}
+                onChange={(e) => setTitle({ ...title, pt: e.target.value })}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Category' : language === 'ru' ? 'Категория' : 'Categoria'}</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full p-2 border rounded"
+                required
+              >
+                <option value="Soup">{language === 'en' ? 'Soup' : language === 'ru' ? 'Суп' : 'Sopa'}</option>
+                <option value="Main Course">{language === 'en' ? 'Main Course' : language === 'ru' ? 'Основное блюдо' : 'Prato Principal'}</option>
+                <option value="Dessert">{language === 'en' ? 'Dessert' : language === 'ru' ? 'Десерт' : 'Sobremesa'}</option>
+              </select>
+            </div>
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Cuisine' : language === 'ru' ? 'Кухня' : 'Cozinha'}</label>
+              <select
+                value={cuisine}
+                onChange={(e) => setCuisine(e.target.value)}
+                className="w-full p-2 border rounded"
+                required
+              >
+                <option value="Russian">{language === 'en' ? 'Russian' : language === 'ru' ? 'Русская' : 'Russa'}</option>
+                <option value="Italian">{language === 'en' ? 'Italian' : language === 'ru' ? 'Итальянская' : 'Italiana'}</option>
+              </select>
+            </div>
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Ingredients' : language === 'ru' ? 'Ингредиенты' : 'Ingredientes'}</label>
+              {ingredients.map((ingredient, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    placeholder="EN"
+                    value={ingredient.en}
+                    onChange={(e) => handleIngredientChange(index, 'en', e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="RU"
+                    value={ingredient.ru}
+                    onChange={(e) => handleIngredientChange(index, 'ru', e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="PT"
+                    value={ingredient.pt}
+                    onChange={(e) => handleIngredientChange(index, 'pt', e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
+              ))}
+              <button
+                onClick={handleAddIngredient}
+                className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+              >
+                {language === 'en' ? 'Add Ingredient' : language === 'ru' ? 'Добавить ингредиент' : 'Adicionar Ingrediente'}
+              </button>
+            </div>
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Instructions (EN)' : language === 'ru' ? 'Инструкции (EN)' : 'Instruções (EN)'}</label>
+              <textarea
+                value={instructions.en}
+                onChange={(e) => setInstructions({ ...instructions, en: e.target.value })}
+                className="w-full p-2 border rounded"
+                rows="4"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Instructions (RU)' : language === 'ru' ? 'Инструкции (RU)' : 'Instruções (RU)'}</label>
+              <textarea
+                value={instructions.ru}
+                onChange={(e) => setInstructions({ ...instructions, ru: e.target.value })}
+                className="w-full p-2 border rounded"
+                rows="4"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Instructions (PT)' : language === 'ru' ? 'Инструкции (PT)' : 'Instruções (PT)'}</label>
+              <textarea
+                value={instructions.pt}
+                onChange={(e) => setInstructions({ ...instructions, pt: e.target.value })}
+                className="w-full p-2 border rounded"
+                rows="4"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Prep Time' : language === 'ru' ? 'Время подготовки' : 'Tempo de Preparo'}</label>
+              <input
+                type="text"
+                value={prepTime}
+                onChange={(e) => setPrepTime(e.target.value)}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">{language === 'en' ? 'Servings' : language === 'ru' ? 'Порции' : 'Porções'}</label>
+              <input
+                type="number"
+                value={servings}
+                onChange={(e) => setServings(e.target.value)}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={handleSubmit}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                {language === 'en' ? 'Save Recipe' : language === 'ru' ? 'Сохранить рецепт' : 'Salvar Receita'
